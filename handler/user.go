@@ -17,7 +17,7 @@ func NewUserHandler(userService user.Service) *userHandler {
 }
 
 func (h *userHandler) RegisterUser(c *gin.Context) {
-	var input user.UserInput
+	var input user.RegisterUserInput
 
 	err := c.ShouldBindJSON(&input)
 	if err != nil {
@@ -41,4 +41,8 @@ func (h *userHandler) RegisterUser(c *gin.Context) {
 	response := helper.ApiResponse("Account has bewn registered", 200, "success", userformat)
 
 	c.JSON(http.StatusOK, response)
+}
+
+func (h *userHandler) Login(c *gin.Context) {
+
 }
