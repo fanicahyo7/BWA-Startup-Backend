@@ -38,11 +38,35 @@ func (h *userHandler) RegisterUser(c *gin.Context) {
 
 	userformat := user.FormatUser(newUser, "tokentokentoken")
 
-	response := helper.ApiResponse("Account has bewn registered", 200, "success", userformat)
+	response := helper.ApiResponse("Account has been registered", 200, "success", userformat)
 
 	c.JSON(http.StatusOK, response)
 }
 
 func (h *userHandler) Login(c *gin.Context) {
+	var input user.LoginInput
 
+	err := c.ShouldBindJSON(&input)
+	if err != nil {
+		errors := helper.FormatValidationError(err)
+		errormessagge := gin.H{"errors": errors}
+
+		response := helper.ApiResponse("login failed", http.StatusUnprocessableEntity, "error", errormessagge)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	loginuser, err := h.userService.LoginUser(input)
+	if err != nil {
+		errormessagge := gin.H{"errors": err.Error()}
+
+		response := helper.ApiResponse("login failed", http.StatusUnprocessableEntity, "error", errormessagge)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	loginformat := user.FormatUser(loginuser, "tokentokentoken")
+	response := helper.ApiResponse("login sukses", 200, "success", loginformat)
+
+	c.JSON(http.StatusOK, response)
 }
