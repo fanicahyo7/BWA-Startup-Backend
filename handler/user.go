@@ -70,3 +70,39 @@ func (h *userHandler) Login(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response)
 }
+
+func (h *userHandler) CekEmailUser(c *gin.Context) {
+	var input user.CekEmailInput
+
+	err := c.ShouldBindJSON(&input)
+	if err != nil {
+		errors := helper.FormatValidationError(err)
+		errormessagge := gin.H{"errors": errors}
+
+		response := helper.ApiResponse("cek email failed", http.StatusUnprocessableEntity, "error", errormessagge)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	cekemail, err := h.userService.CekEmailUser(input)
+	if err != nil {
+		errormessagge := gin.H{"errors": err.Error()}
+
+		response := helper.ApiResponse("cek email failed", http.StatusUnprocessableEntity, "error", errormessagge)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	data := gin.H{
+		"is_available": cekemail,
+	}
+
+	message := "Email has been registered"
+	if cekemail {
+		message = "Email Available"
+	}
+
+	response := helper.ApiResponse(message, 200, "success", data)
+
+	c.JSON(http.StatusOK, response)
+}
