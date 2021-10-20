@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"bwastartup/auth"
 	"bwastartup/helper"
 	"bwastartup/user"
 	"fmt"
@@ -11,10 +12,11 @@ import (
 
 type userHandler struct {
 	userService user.Service
+	authService auth.Service
 }
 
-func NewUserHandler(userService user.Service) *userHandler {
-	return &userHandler{userService}
+func NewUserHandler(userService user.Service, authService auth.Service) *userHandler {
+	return &userHandler{userService, authService}
 }
 
 func (h *userHandler) RegisterUser(c *gin.Context) {
@@ -37,7 +39,14 @@ func (h *userHandler) RegisterUser(c *gin.Context) {
 		return
 	}
 
-	userformat := user.FormatUser(newUser, "tokentokentoken")
+	token, err := h.authService.GenerateToken(newUser.ID)
+	if err != nil {
+		response := helper.ApiResponse("Register account failed", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	userformat := user.FormatUser(newUser, token)
 
 	response := helper.ApiResponse("Account has been registered", 200, "success", userformat)
 
@@ -66,7 +75,14 @@ func (h *userHandler) Login(c *gin.Context) {
 		return
 	}
 
-	loginformat := user.FormatUser(loginuser, "tokentokentoken")
+	token, err := h.authService.GenerateToken(loginuser.ID)
+	if err != nil {
+		response := helper.ApiResponse("login failed", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	loginformat := user.FormatUser(loginuser, token)
 	response := helper.ApiResponse("login sukses", 200, "success", loginformat)
 
 	c.JSON(http.StatusOK, response)
@@ -113,7 +129,7 @@ func (h *userHandler) UploadAvatar(c *gin.Context) {
 	if err != nil {
 		errormessagge := gin.H{"is_uploaded": false}
 
-		response := helper.ApiResponse("upload avatar failed 1", http.StatusUnprocessableEntity, "error", errormessagge)
+		response := helper.ApiResponse("upload avatar failed", http.StatusUnprocessableEntity, "error", errormessagge)
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -125,7 +141,7 @@ func (h *userHandler) UploadAvatar(c *gin.Context) {
 	if err != nil {
 		errormessagge := gin.H{"is_uploaded": false}
 
-		response := helper.ApiResponse("upload avatar failed 2", http.StatusUnprocessableEntity, "error", errormessagge)
+		response := helper.ApiResponse("upload avatar failed", http.StatusUnprocessableEntity, "error", errormessagge)
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -134,7 +150,7 @@ func (h *userHandler) UploadAvatar(c *gin.Context) {
 	if err != nil {
 		errormessagge := gin.H{"is_uploaded": false}
 
-		response := helper.ApiResponse("upload avatar failed 3", http.StatusUnprocessableEntity, "error", errormessagge)
+		response := helper.ApiResponse("upload avatar failed", http.StatusUnprocessableEntity, "error", errormessagge)
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
