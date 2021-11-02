@@ -31,9 +31,6 @@ func main() {
 	AuthService := auth.NewService()
 	CampaignService := campaign.NewService(CampaignRepository)
 
-	// anu, err := CampaignService.GetCampaigns(7)
-	// fmt.Println(len(anu))
-
 	UserHandler := handler.NewUserHandler(UserService, AuthService)
 	CampaignHandler := handler.NewCampaignHandler(CampaignService)
 
@@ -46,6 +43,7 @@ func main() {
 	api.POST("avatars/", authMiddleware(AuthService, UserService), UserHandler.UploadAvatar)
 
 	api.GET("campaigns/", CampaignHandler.GetCampaigns)
+	api.GET("campaigns/:id", CampaignHandler.GetCampaign)
 	router.Run()
 
 }
