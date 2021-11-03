@@ -41,14 +41,16 @@ func (h *campaignHandler) GetCampaign(c *gin.Context) {
 		return
 	}
 
-	campaign, err := h.campaignService.GetCampaign(input)
+	campaigns, err := h.campaignService.GetCampaign(input)
 	if err != nil {
 		response := helper.ApiResponse("error to get campaign detail", http.StatusBadRequest, "error", nil)
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
 
-	response := helper.ApiResponse("detail of campaigns", 200, "success", campaign)
+	formatCampaigns := campaign.FormatCampaignDetail(campaigns)
+
+	response := helper.ApiResponse("single campaigns", 200, "success", formatCampaigns)
 
 	c.JSON(http.StatusOK, response)
 }
