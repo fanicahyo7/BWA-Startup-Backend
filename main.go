@@ -44,8 +44,8 @@ func main() {
 
 	api.GET("campaigns/", CampaignHandler.GetCampaigns)
 	api.GET("campaigns/:id", CampaignHandler.GetCampaign)
+	api.POST("campaigns/", authMiddleware(AuthService, UserService), CampaignHandler.CreateCampaign)
 	router.Run()
-
 }
 
 func authMiddleware(authService auth.Service, userService user.Service) gin.HandlerFunc {
