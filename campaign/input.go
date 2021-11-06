@@ -14,3 +14,8 @@ type CampaignInput struct {
 	GoalAmount       int
 	User             user.User
 }
+
+type CampaignImageInput struct {
+	CampaignID int
+	IsPrimary  bool
+}
