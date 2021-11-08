@@ -92,6 +92,15 @@ func (s *service) EditCampaign(inputID GetCampaignDetailInput, inputData Campaig
 }
 
 func (s *service) CreateImage(input CampaignImageInput, filelocation string) (CampaignImage, error) {
+	campaign, err := s.repository.FindByID(input.CampaignID)
+	if err != nil {
+		return CampaignImage{}, err
+	}
+
+	if campaign.UserID != input.User.ID {
+		return CampaignImage{}, errors.New("not an owner of the campaign")
+	}
+
 	isPrimary := 0
 	if input.IsPrimary {
 		isPrimary = 1

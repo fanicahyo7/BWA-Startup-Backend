@@ -4,6 +4,7 @@ import (
 	"bwastartup/campaign"
 	"bwastartup/helper"
 	"bwastartup/user"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -118,5 +119,55 @@ func (h *campaignHandler) UpdateCampaign(c *gin.Context) {
 
 	response := helper.ApiResponse("Campaign successfully updated", 200, "success", updateCampaign)
 
+	c.JSON(http.StatusOK, response)
+}
+
+func (h *campaignHandler) UploadImage(c *gin.Context) {
+	var input campaign.CampaignImageInput
+	err := c.ShouldBind(&input)
+
+	if err != nil {
+		errors := helper.FormatValidationError(err)
+		errorMessage := gin.H{"errors": errors}
+
+		response := helper.ApiResponse("error to upload image", http.StatusBadRequest, "error", errorMessage)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	currenUser := c.MustGet("currentUser").(user.User)
+	input.User = currenUser
+	UserID := currenUser.ID
+
+	file, err := c.FormFile("file")
+	if err != nil {
+		errormessagge := gin.H{"is_uploaded": false}
+
+		response := helper.ApiResponse("error to upload image", http.StatusUnprocessableEntity, "error", errormessagge)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	path := fmt.Sprintf("images/%d-%s", UserID, file.Filename)
+	err = c.SaveUploadedFile(file, path)
+	if err != nil {
+		errormessagge := gin.H{"is_uploaded": false}
+
+		response := helper.ApiResponse("error to upload image", http.StatusUnprocessableEntity, "error", errormessagge)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	_, err = h.campaignService.CreateImage(input, path)
+	if err != nil {
+		errormessagge := gin.H{"is_uploaded": false}
+
+		response := helper.ApiResponse("upload image failed", http.StatusUnprocessableEntity, "error", errormessagge)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	data := gin.H{"is_uploaded": true}
+	response := helper.ApiResponse("upload success", http.StatusOK, "success", data)
 	c.JSON(http.StatusOK, response)
 }
