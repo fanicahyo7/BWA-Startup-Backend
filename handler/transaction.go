@@ -48,14 +48,14 @@ func (h *transactionHandler) GetCampaignTransactionByUserID(c *gin.Context) {
 	userID := currenUser.ID
 	fmt.Println(userID)
 
-	transaction, err := h.transactionService.GetCampaignTransactionByUserID(userID)
+	transactions, err := h.transactionService.GetCampaignTransactionByUserID(userID)
 	if err != nil {
 		response := helper.ApiResponse(err.Error(), http.StatusBadRequest, "error", nil)
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
 
-	response := helper.ApiResponse("List of transactions", 200, "success", transaction)
+	response := helper.ApiResponse("List of transactions", 200, "success", transaction.FormatUserTransactions(transactions))
 
 	c.JSON(http.StatusOK, response)
 }
