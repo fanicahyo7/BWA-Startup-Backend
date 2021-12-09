@@ -47,8 +47,13 @@ func main() {
 
 	router := gin.Default()
 	router.HTMLRender = loadTemplates("./web/templates")
+
 	router.Use(cors.Default())
 	router.Static("/images", "./images")
+	router.Static("/css", "./web/assets/css")
+	router.Static("/js", "./web/assets/js")
+	router.Static("/webfonts", "./web/assets/webfonts")
+
 	api := router.Group("/api/v1")
 	api.POST("users/", UserHandler.RegisterUser)
 	api.POST("sessions/", UserHandler.Login)
