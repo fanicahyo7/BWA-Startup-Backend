@@ -43,12 +43,12 @@ func main() {
 	CampaignHandler := handler.NewCampaignHandler(CampaignService)
 	TransactionHandler := handler.NewTransactionHandler(TransactionService)
 
-	webUserHandler := webHandler.NewUserHandler()
+	webUserHandler := webHandler.NewUserHandler(UserService)
 
 	router := gin.Default()
+	router.Use(cors.Default())
 	router.HTMLRender = loadTemplates("./web/templates")
 
-	router.Use(cors.Default())
 	router.Static("/images", "./images")
 	router.Static("/css", "./web/assets/css")
 	router.Static("/js", "./web/assets/js")
@@ -72,6 +72,8 @@ func main() {
 	api.POST("transactions/", authMiddleware(AuthService, UserService), TransactionHandler.CreateTransaction)
 
 	router.GET("users/", webUserHandler.Index)
+	router.GET("users/new", webUserHandler.New)
+	router.POST("users/", webUserHandler.Create)
 
 	router.Run()
 }
