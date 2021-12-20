@@ -48,6 +48,7 @@ func main() {
 	webUserHandler := webHandler.NewUserHandler(UserService)
 	webCampaignhandler := webHandler.NewCampaignHandler(CampaignService, UserService)
 	webTransactionHandler := webHandler.NewTransactionHandler(TransactionService)
+	webSessionHandler := webHandler.NewSessionHandler(UserService)
 
 	router := gin.Default()
 	router.Use(cors.Default())
@@ -97,6 +98,10 @@ func main() {
 	router.GET("campaigns/show/:id", authAdminMiddleware(), webCampaignhandler.Show)
 
 	router.GET("transactions/", authAdminMiddleware(), webTransactionHandler.Index)
+
+	router.GET("login/", webSessionHandler.New)
+	router.POST("/session", webSessionHandler.Create)
+	router.GET("/logout", webSessionHandler.Destroy)
 
 	router.Run()
 }
